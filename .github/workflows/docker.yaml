@@ -1,5 +1,8 @@
 name: Build and Publish Docker
-on: [push]
+on: 
+  push:
+  schedule:
+    - cron: 0 0 1 */3 *
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,17 +18,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Build and push arm64
+      - name: Build and Publish
         uses: docker/build-push-action@v2
         with:
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: linux/arm/v7,linux/arm64
           context: .
           push: true
-          tags: lincanyitse/mysql:5.7
-      # - name: Build and push arm
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     platforms: 
-      #     context: .
-      #     push: true
-      #     tags: lincanyitse/mysql:5.7
+          tags: |
+            lincanyitse/mysql:5.7
+            lincanyitse/mysql:5
