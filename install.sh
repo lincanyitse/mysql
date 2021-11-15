@@ -31,7 +31,7 @@ compile_install() {
         cd /tmp/mysql-${MYSQL_VERSION} &&
         run 'cmake' 'cmake . \
             -DBUILD_CONFIG=mysql_release \
-            -DINSTALL_LAYOUT=DEB \
+            -DINSTALL_LAYOUT=STANDALONE \
             -DCPACK_MONOLITHIC_INSTALL=0 \
             -DWITH_BOOST=boost \
             -DMYSQL_UNIX_ADDR=/tmp/mysql.sock \
@@ -55,7 +55,7 @@ compile_install() {
             -DENABLE_DOWNLOADS=0 \
             -DWITH_DEBUG=0 \
             -DWITH_UNIT_TESTS=OFF \
-            -DMYSQL_DATADIR=/var/mysql/data' &&
+            -DMYSQL_DATADIR=/var/lib/mysql' &&
         run 'make' 'make -j$(nproc)' &&
         run 'make install' 'make install -j$(nproc)' &&
         mkdir -p /etc/mysql/conf.d/ &&
@@ -87,7 +87,12 @@ _main() {
         apt_install
         ;;
     gosu_install)
-        gosu_install
+        #gosu_install
+	    /opt/gosu/gosu.install.sh
+        rm -fr /opt/gosu
+        if [ ! -e '/usr/local/bin/gosu' ];then
+            gosu_install
+        fi
         ;;
     compile_install)
         compile_install

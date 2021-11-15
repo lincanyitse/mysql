@@ -5,6 +5,7 @@ ENV MYSQL_MAJOR=5.7 \
     MYSQL_VERSION=${MYSQL_VER} \
     GOSU_VERSION=1.12
 
+COPY --from=gosu/assets /opt/gosu /opt/gosu
 COPY install.sh /tmp/
 COPY docker-entrypoint.sh /usr/local/bin/
 
@@ -21,7 +22,7 @@ RUN sed -i 's/\w\+.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list && \
     apt-get install -qqy --no-install-recommends  libatomic1 libssl-dev libaio-dev libncurses5-dev libbison-dev libtirpc-dev && \
     rm -rf /var/lib/apt/lists/* /tmp/* && \
     mkdir /docker-entrypoint-initdb.d && \
-    ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
+    ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh # backwards compat
 
 VOLUME /var/lib/mysql
 ENTRYPOINT ["docker-entrypoint.sh"]
