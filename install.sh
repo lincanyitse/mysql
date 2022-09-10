@@ -67,18 +67,19 @@ compile_install() {
 
 gosu_install() {
     dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"
-    run 'gosu download' "wget -O /usr/local/bin/gosu \"https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch\""
-    run 'gosu verify download' "wget -O /usr/local/bin/gosu.asc \"https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc\""
-    export GNUPGHOME="$(mktemp -d)"
-    run 'gpg key' 'gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4'
-    run 'gpg verify' 'gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu'
-    run 'gpg kill' 'gpgconf --kill all'
-    rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc
-    run 'apt mark' "apt-mark auto '.*' >/dev/null"
-    run 'apt mark manual' "[ -z "$savedAptMark" ] || apt-mark manual $savedAptMark >/dev/null"
-    chmod +x /usr/local/bin/gosu
-    gosu --version
-    gosu nobody true
+    if [ "$dpkgArch" == "aarch64" ]; then dpkgArch="arm64"; fi
+    run 'gosu download' "wget -O /usr/local/bin/gosu \"https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch\"" &&
+        run 'gosu verify download' "wget -O /usr/local/bin/gosu.asc \"https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc\"" &&
+        export GNUPGHOME="$(mktemp -d)" &&
+        run 'gpg key' 'gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4' &&
+        run 'gpg verify' 'gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu' &&
+        run 'gpg kill' 'gpgconf --kill all' &&
+        rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc &&
+        run 'apt mark' "apt-mark auto '.*' >/dev/null" &&
+        run 'apt mark manual' "[ -z "$savedAptMark" ] || apt-mark manual $savedAptMark >/dev/null" &&
+        chmod +x /usr/local/bin/gosu &&
+        gosu --version &&
+        gosu nobody true
 }
 
 _main() {
@@ -88,9 +89,9 @@ _main() {
         ;;
     gosu_install)
         #gosu_install
-	    /opt/gosu/gosu.install.sh
+        /opt/gosu/gosu.install.sh
         rm -fr /opt/gosu
-        if [ ! -e '/usr/local/bin/gosu' ];then
+        if [ ! -e '/usr/local/bin/gosu' ]; then
             gosu_install
         fi
         ;;
