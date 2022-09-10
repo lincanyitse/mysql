@@ -1,9 +1,9 @@
 FROM debian as build
 
-ARG MYSQL_VER=5.7.34
+ARG MYSQL_VER=5.7.39
 ENV MYSQL_MAJOR=5.7 \
     MYSQL_VERSION=${MYSQL_VER} \
-    GOSU_VERSION=1.12
+    GOSU_VERSION=1.14
 
 COPY --from=gosu/assets /opt/gosu /opt/gosu
 COPY install.sh /tmp/
