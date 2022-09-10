@@ -67,7 +67,7 @@ compile_install() {
 
 gosu_install() {
     dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"
-    if [ "$dpkgArch" == "aarch64" ]; then dpkgArch="arm64"; fi
+    echo $dpkgArch
     run 'gosu download' "wget -O /usr/local/bin/gosu \"https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch\"" &&
         run 'gosu verify download' "wget -O /usr/local/bin/gosu.asc \"https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc\"" &&
         export GNUPGHOME="$(mktemp -d)" &&
