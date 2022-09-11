@@ -29,6 +29,7 @@ compile_install() {
     cd /tmp &&
         run 'msql download' "wget -q -O- ${url} | tar zxv" &&
         cd /tmp/mysql-${MYSQL_VERSION} &&
+        echo "${MYSQL_VERSION}" &&
         run 'cmake' 'cmake . \
             -DBUILD_CONFIG=mysql_release \
             -DINSTALL_LAYOUT=RPM \
@@ -59,6 +60,7 @@ compile_install() {
         run 'make' 'make -j$(nproc)' &&
         run 'make install' 'make install -j$(nproc)' &&
         mkdir -p /etc/mysql/conf.d/ &&
+        echo "$(which mysqld)" &&
         echo '[mysqld]\nskip-host-cache\nskip-name-resolve' >/etc/mysql/conf.d/docker.cnf &&
         rm -rf /var/lib/mysql && mkdir -p /var/lib/mysql /var/run/mysqld /var/lib/mysql-files &&
         chown -R mysql:mysql /var/lib/mysql /var/run/mysqld &&
@@ -89,7 +91,7 @@ _main() {
         ;;
     gosu_install)
         #gosu_install
-        /opt/gosu/gosu.install.sh
+        #/opt/gosu/gosu.install.sh
         rm -fr /opt/gosu
         if [ ! -e '/usr/local/bin/gosu' ]; then
             gosu_install

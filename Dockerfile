@@ -22,7 +22,7 @@ RUN sed -i 's/\w\+.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list && \
     apt-get install -qqy --no-install-recommends  libatomic1 libssl-dev libaio-dev libncurses5-dev libbison-dev libtirpc-dev && \
     rm -rf /var/lib/apt/lists/* /tmp/* && \
     mkdir /docker-entrypoint-initdb.d && \
-    ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh # backwards compat
+    ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh
 
 VOLUME /var/lib/mysql
 ENTRYPOINT ["docker-entrypoint.sh"]
