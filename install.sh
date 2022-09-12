@@ -32,7 +32,7 @@ compile_install() {
         echo "${MYSQL_VERSION}" &&
         run 'cmake' 'cmake . \
             -DBUILD_CONFIG=mysql_release \
-            -DINSTALL_LAYOUT=RPM \
+            -DINSTALL_LAYOUT=STANDALONE \
             -DCPACK_MONOLITHIC_INSTALL=0 \
             -DWITH_BOOST=boost \
             -DMYSQL_UNIX_ADDR=/tmp/mysql.sock \
