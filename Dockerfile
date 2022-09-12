@@ -15,14 +15,15 @@ RUN sed -i 's/\w\+.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list && \
     /tmp/install.sh apt_install && \ 
     savedAptMark="$(apt-mark showmanual)"; \
     /tmp/install.sh gosu_install && \ 
-    /tmp/install.sh compile_install; \
     apt-mark auto '.*' >/dev/null;\
     [ -z "$savedAptMark" ] || apt-mark manual $savedAptMark >/dev/null; \
-    apt-get purge -qqy --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
-    apt-get install -qqy --no-install-recommends  libatomic1 libssl-dev libaio-dev libncurses5-dev libbison-dev libtirpc-dev && \
-    rm -rf /var/lib/apt/lists/* /tmp/* && \
+    rm -rf /var/lib/apt/lists/* && \
     mkdir /docker-entrypoint-initdb.d && \
     ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh
+RUN /tmp/install.sh compile_install; \
+    apt-get purge -qqy --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+    apt-get install -qqy --no-install-recommends  libatomic1 libssl-dev libaio-dev libncurses5-dev libbison-dev libtirpc-dev && \
+    rm -rf /tmp/* 
 
 VOLUME /var/lib/mysql
 ENTRYPOINT ["docker-entrypoint.sh"]
