@@ -3,10 +3,31 @@ ENV GOSU_VERSION 1.16
 ENV MYSQL_MAJOR=5.7 
 RUN set -eux; \
     groupadd -r mysql -g 999 && useradd -u 999 -r -g mysql mysql && \
-    sed -i 's/\w\+.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list && \
+    # sed -i 's/\w\+.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list && \
     apt-get update -qq && \
     apt-get install -qqy curl vim && \
     rm -rf /tmp/* /var/lib/apt/lists/*
+
+RUN set -eux; \
+    # add gosu for easy step-down from root
+    # https://github.com/tianon/gosu/releases
+    # TODO find a better userspace architecture detection method than querying the kernel
+    arch="$(uname -m)"; \
+    case "$arch" in \
+    aarch64) gosuArch='arm64' ;; \
+    armv7l) gosuArch='armhf' ;; \
+    x86_64) gosuArch='amd64' ;; \
+    *) echo >&2 "error: unsupported architecture: '$arch'"; exit 1 ;; \
+    esac; \
+    curl -fL -o /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$gosuArch.asc"; \
+    curl -fSL -o /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$gosuArch"; \
+    export GNUPGHOME="$(mktemp -d)" &&  \
+    gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && \
+    gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu &&  \
+    rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc &&  \
+    chmod 755 /usr/local/bin/gosu; \
+    gosu --version; \
+    gosu nobody true
 
 RUN set -eux; \    
     savedAptMark="$(apt-mark showmanual)"; \
@@ -58,27 +79,6 @@ RUN set -eux; \
     apt-get purge -qqy --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
     apt-get install -qqy --no-install-recommends  libatomic1 libssl-dev libaio-dev libncurses5-dev libbison-dev libtirpc-dev && \
     rm -rf /tmp/* /var/lib/apt/lists/*
-
-RUN set -eux; \
-    # add gosu for easy step-down from root
-    # https://github.com/tianon/gosu/releases
-    # TODO find a better userspace architecture detection method than querying the kernel
-    arch="$(uname -m)"; \
-    case "$arch" in \
-    aarch64) gosuArch='arm64' ;; \
-    armv7l) gosuArch='armhf' ;; \
-    x86_64) gosuArch='amd64' ;; \
-    *) echo >&2 "error: unsupported architecture: '$arch'"; exit 1 ;; \
-    esac; \
-    curl -fL -o /usr/local/bin/gosu.asc "https://ghproxy.com/https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$gosuArch.asc"; \
-    curl -fSL -o /usr/local/bin/gosu "https://ghproxy.com/https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$gosuArch"; \
-    export GNUPGHOME="$(mktemp -d)" &&  \
-    gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && \
-    gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu &&  \
-    rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc &&  \
-    chmod 755 /usr/local/bin/gosu; \
-    gosu --version; \
-    gosu nobody true
 
 VOLUME /var/lib/mysql
 
