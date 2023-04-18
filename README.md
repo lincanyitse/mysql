@@ -1,3 +1,3 @@
 # MySQL ARM Image
 
-MySQL running on raspberry pie
+MySQL running on arm/v7 arm64
