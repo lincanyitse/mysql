@@ -2,13 +2,13 @@ FROM debian:bullseye-slim
 ENV GOSU_VERSION 1.16 
 ENV MYSQL_MAJOR=5.7 
 RUN set -eux; \
-    groupadd -r mysql -g 999 && useradd -u 999 -r -g mysql mysql && \
-    # sed -i 's/\w\+.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list && \
-    apt-get update -qq && \
-    apt-get install -qqy curl vim && \
-    rm -rf /tmp/* /var/lib/apt/lists/*
+    groupadd -r mysql -g 999 && useradd -u 999 -r -g mysql mysql
 
 RUN set -eux; \
+    # sed -i 's/\w\+.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list && \
+    apt-get update -qq && \
+    apt-get install -qqy curl vim gnupg && \
+    rm -rf /tmp/* /var/lib/apt/lists/*; \
     # add gosu for easy step-down from root
     # https://github.com/tianon/gosu/releases
     # TODO find a better userspace architecture detection method than querying the kernel
