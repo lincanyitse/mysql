@@ -19,8 +19,8 @@ RUN set -eux; \
     x86_64) gosuArch='amd64' ;; \
     *) echo >&2 "error: unsupported architecture: '$arch'"; exit 1 ;; \
     esac; \
-    curl -fL -o /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$gosuArch.asc"; \
-    curl -fSL -o /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$gosuArch"; \
+    curl -SL -o /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$gosuArch.asc"; \
+    curl -SL -o /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$gosuArch"; \
     export GNUPGHOME="$(mktemp -d)" &&  \
     gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && \
     gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu &&  \
