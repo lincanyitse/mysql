@@ -11,7 +11,8 @@ RUN set -eux; \
     && MYSQL_VERSION="${latest}" \
     && rm -rf /var/lib/apt/lists/*
 
-RUN savedAptMark="$(apt-mark showmanual)"; \
+RUN set -eux; \
+    savedAptMark="$(apt-mark showmanual)"; \
     apt-mark auto '.*' >/dev/null;\
     [ -z "$savedAptMark" ] || apt-mark manual $savedAptMark >/dev/null; \
     apt-get update && apt-get install -y --no-install-recommends \
