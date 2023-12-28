@@ -1,14 +1,14 @@
 FROM debian:12-slim
 ENV GOSU_VERSION 1.16 
 ENV MYSQL_MAJOR=5.7
-ENV MYSQL_VERSION=5.7
+ENV MYSQL_VERSION=5.7.44
 RUN set -eux; \
     groupadd -r mysql -g 999 && useradd -u 999 -r -g mysql mysql \
     && apt-get update && apt-get install -y \
     curl  \
     vim \
     && latest=$(curl -fsSL "http://dev.mysql.com/downloads/mysql/${MYSQL_MAJOR}.html?tpl=files&os=src&osva=Generic+Linux+(Architecture+Independent)" | grep "${MYSQL_MAJOR}" | grep -oE "(${MYSQL_MAJOR}.[0-9]+)" | head -n 1) \
-    && MYSQL_VERSION="${latest}" \
+    && export MYSQL_VERSION="${latest}" \
     && rm -rf /var/lib/apt/lists/*
 
 RUN set -eux; \
