@@ -1,43 +1,27 @@
-FROM debian:bullseye-slim
+FROM debian:12-slim
 ENV GOSU_VERSION 1.16 
-ENV MYSQL_MAJOR=5.7 
+ENV MYSQL_MAJOR=5.7
+ENV MYSQL_VERSION=5.7
 RUN set -eux; \
-    groupadd -r mysql -g 999 && useradd -u 999 -r -g mysql mysql
+    groupadd -r mysql -g 999 && useradd -u 999 -r -g mysql mysql \
+    apt-get update && apt-get install -y \
+    curl  \
+    vim \
+    && latest=$(curl -fsSL "http://dev.mysql.com/downloads/mysql/${MYSQL_MAJOR}.html?tpl=files&os=src&osva=Generic+Linux+(Architecture+Independent)" | grep "${MYSQL_MAJOR}" | grep -oE "(${MYSQL_MAJOR}.[0-9]+)" | head -n 1) \
+    && MYSQL_VERSION="${latest}" \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN set -eux; \
-    # sed -i 's/\w\+.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list && \
-    apt-get update -qq && \
-    apt-get install -qqy curl vim gnupg && \
-    rm -rf /tmp/* /var/lib/apt/lists/*; \
-    # add gosu for easy step-down from root
-    # https://github.com/tianon/gosu/releases
-    # TODO find a better userspace architecture detection method than querying the kernel
-    arch="$(uname -m)"; \
-    case "$arch" in \
-    aarch64) gosuArch='arm64' ;; \
-    armv7l) gosuArch='armhf' ;; \
-    x86_64) gosuArch='amd64' ;; \
-    *) echo >&2 "error: unsupported architecture: '$arch'"; exit 1 ;; \
-    esac; \
-    curl -SL -o /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$gosuArch.asc"; \
-    curl -SL -o /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$gosuArch"; \
-    export GNUPGHOME="$(mktemp -d)" &&  \
-    gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && \
-    gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu &&  \
-    rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc &&  \
-    chmod 755 /usr/local/bin/gosu; \
-    gosu --version; \
-    gosu nobody true
-
-RUN set -eux; \    
-    savedAptMark="$(apt-mark showmanual)"; \
+RUN savedAptMark="$(apt-mark showmanual)"; \
     apt-mark auto '.*' >/dev/null;\
     [ -z "$savedAptMark" ] || apt-mark manual $savedAptMark >/dev/null; \
-    apt-get update -qq && \
-    apt-get install -qqy build-essential cmake ca-certificates wget gnupg dirmngr libbison-dev libssl-dev libncurses5-dev pkg-config libtirpc-dev git libaio-dev && \
-    latest=$(curl -fsSL "http://dev.mysql.com/downloads/mysql/${MYSQL_MAJOR}.html?tpl=files&os=src&osva=Generic+Linux+(Architecture+Independent)" | grep "${MYSQL_MAJOR}" | grep -oE "(${MYSQL_MAJOR}.[0-9]+)" | head -n 1) && \
-    MYSQL_VERSION="${latest}" && \
-    url="http://dev.mysql.com/get/Downloads/MySQL-${MYSQL_MAJOR}/mysql-boost-${MYSQL_VERSION}.tar.gz"; \
+    apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    bison \
+    libncurses5-dev \
+    gnupg \
+    ca-certificates \
+    && url="http://dev.mysql.com/get/Downloads/MySQL-${MYSQL_MAJOR}/mysql-boost-${MYSQL_VERSION}.tar.gz"; \
     cd /tmp && \
     curl -fsSL "${url}" | tar zxv; \
     cd /tmp/mysql-${MYSQL_VERSION} && \
