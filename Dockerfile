@@ -59,8 +59,8 @@ RUN set -eux; \
     -DWITH_DEBUG=0 \
     -DWITH_UNIT_TESTS=OFF \
     -DMYSQL_DATADIR=/var/lib/mysql && \
-    make -j$(nproc) && \
-    make install -j$(nproc) && \
+    make -j1 && \
+    make install -j1 && \
     mkdir -p /etc/mysql/conf.d/ && \
     echo '[mysqld]\nskip-host-cache\nskip-name-resolve' >/etc/mysql/conf.d/docker.cnf && \
     rm -rf /var/lib/mysql && mkdir -p /var/lib/mysql /var/run/mysqld /var/lib/mysql-files && \
