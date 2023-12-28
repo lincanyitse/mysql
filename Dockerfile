@@ -19,6 +19,12 @@ RUN set -eux; \
     build-essential \
     cmake \
     bison \
+    openssl \
+    libssl-dev \
+    pkg-config \
+    libtirpc-dev \
+    git \
+    libaio-dev \
     libncurses5-dev \
     gnupg \
     ca-certificates \
